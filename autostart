@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+;
+# =============================================================================
+# Openbox Autostart - Minimal & Modern Polybar + Conky (CachyOS Arch Linux)
+# =============================================================================
+
+# Set Wallpaper using feh (if wallpaper exists)
+if [ -f /home/vishal/Downloads/wallpaper.jpg ]; then
+    feh --bg-fill /home/vishal/Downloads/wallpaper.jpg &
+else
+    feh --bg-fill /usr/share/backgrounds/default.png 2>/dev/null || xsetroot -solid "#000000" &
+fi
+
+# Start the compositor (for smooth rendering, shadows, and transparency)
+picom -b &
+
+# Start the NetworkManager Applet for system tray
+nm-applet &
+
+# Sync Polybar, Conky, Rofi, and Dunst configurations
+mkdir -p /home/vishal/.config/polybar/scripts /home/vishal/.config/conky /home/vishal/.config/rofi /home/vishal/.config/dunst
+cp -rf /home/vishal/Useless/polybar/* /home/vishal/.config/polybar/ 2>/dev/null
+cp -rf /home/vishal/Useless/conky/* /home/vishal/.config/conky/ 2>/dev/null
+cp -f /home/vishal/Useless/launcher.rasi /home/vishal/.config/rofi/launcher.rasi 2>/dev/null
+cp -f /home/vishal/Useless/dunst/dunstrc /home/vishal/.config/dunst/dunstrc 2>/dev/null
+
+chmod +x /home/vishal/.config/polybar/*.sh /home/vishal/.config/polybar/scripts/*.sh /home/vishal/.config/conky/*.sh 2>/dev/null
+
+# Clean up any leftover previous bottom panels (plank, tint2)
+killall -q plank tint2 2>/dev/null
+
+# Start Polybar (top status bar with pinned apps, workspaces, system stats)
+/home/vishal/.config/polybar/launch.sh &
+
+# Start Conky (detailed system monitor widget)
+/home/vishal/.config/conky/conky_launch.sh &
+
+# Start Lock Screen Daemon (handles laptop lid close, suspend, idle lock, logind & DBus lock signals)
+python3 /home/vishal/Useless/lock_daemon.py &
+
+

@@ -1,0 +1,103 @@
+# =============================================================================
+# DUNST NOTIFICATION CONFIGURATION - MINIMAL & MODERN GLASS
+# Pure Dark 0.7 Opacity Glassmorphism with Dynamic Urgency Colors
+# Openbox Linux powered by CachyOS (Arch)
+# =============================================================================
+
+[global]
+    ### Display & Geometry ###
+    monitor = 0
+    follow = none
+    width = (300, 380)
+    height = (60, 250)
+    origin = top-right
+    offset = 14x46
+    scale = 0
+    notification_limit = 5
+
+    ### Progress Bar ###
+    progress_bar = true
+    progress_bar_height = 4
+    progress_bar_frame_width = 0
+    progress_bar_min_width = 160
+    progress_bar_max_width = 340
+    progress_bar_corner_radius = 2
+
+    ### Appearance & Opacity ###
+    # 0% transparency = 100% (1.0) solid opacity
+    transparency = 0
+    corner_radius = 8
+    gap_size = 8
+    frame_width = 1
+    frame_color = "#383838"
+    separator_color = frame
+    separator_height = 1
+
+    ### Padding & Spacing ###
+    padding = 12
+    horizontal_padding = 14
+    text_icon_padding = 12
+
+    ### Typography & Markup ###
+    font = JetBrains Mono 10
+    line_height = 3
+    format = "<b>%s</b>\n%b"
+    alignment = left
+    show_age_threshold = 60
+    word_wrap = yes
+    ellipsize = middle
+    ignore_newline = no
+    stack_duplicates = true
+    hide_duplicate_count = false
+    show_indicators = yes
+
+    ### Icons ###
+    enable_recursive_icon_lookup = true
+    icon_theme = Papirus-Dark, Adwaita, hicolor
+    icon_position = left
+    min_icon_size = 28
+    max_icon_size = 48
+    icon_path = /usr/share/icons/Papirus-Dark/48x48/status/:/usr/share/icons/Papirus-Dark/48x48/devices/:/usr/share/icons/Papirus-Dark/48x48/apps/
+
+    ### History & Interactions ###
+    sticky_history = yes
+    history_length = 20
+    dmenu = /usr/bin/rofi -dmenu -p Dunst
+    browser = /usr/bin/xdg-open
+    always_run_script = true
+    title = Dunst
+    class = Dunst
+
+    mouse_left_click = close_current
+    mouse_middle_click = do_action, close_current
+    mouse_right_click = close_all
+
+# -----------------------------------------------------------------------------
+# URGENCY: LOW (Hints, subtle background notices)
+# -----------------------------------------------------------------------------
+[urgency_low]
+    background = "#0e0e0e"
+    foreground = "#9e9e9e"
+    frame_color = "#282828"
+    highlight = "#707070"
+    timeout = 4
+
+# -----------------------------------------------------------------------------
+# URGENCY: NORMAL (Standard system notifications - 1.0 Solid Opacity)
+# -----------------------------------------------------------------------------
+[urgency_normal]
+    background = "#0c0c0c"
+    foreground = "#d4d4d4"
+    frame_color = "#444444"
+    highlight = "#50fa7b"
+    timeout = 6
+
+# -----------------------------------------------------------------------------
+# URGENCY: CRITICAL (Danger, Bad errors, Battery critical, System alerts)
+# -----------------------------------------------------------------------------
+[urgency_critical]
+    background = "#180808"
+    foreground = "#ff6b6b"
+    frame_color = "#e06c75"
+    highlight = "#e06c75"
+    timeout = 0

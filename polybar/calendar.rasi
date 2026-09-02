@@ -1,0 +1,102 @@
+configuration {
+    show-icons:                 false;
+}
+
+@theme "/dev/null"
+
+* {
+    font:                        "JetBrains Mono 10.5";
+    bg:                          #000000;
+    fg:                          #d4d4d4;
+    fg-dim:                      #808080;
+    border-col:                  #444444;
+    selected-bg:                 #222222;
+    selected-fg:                 #eeeeee;
+    background-color:            transparent;
+    text-color:                  @fg;
+}
+
+window {
+    transparency:                "real";
+    location:                    northeast;
+    anchor:                      northeast;
+    fullscreen:                  false;
+    width:                       340px;
+    x-offset:                    -10px;
+    y-offset:                    42px;
+
+    enabled:                     true;
+    margin:                      0px;
+    padding:                     15px;
+    border:                      1px solid;
+    border-radius:               8px;
+    border-color:                @border-col;
+    background-color:            @bg;
+}
+
+mainbox {
+    enabled:                     true;
+    spacing:                     10px;
+    margin:                      0px;
+    padding:                     0px;
+    children:                    [ "message", "listview" ];
+}
+
+message {
+    enabled:                     true;
+    margin:                      0px;
+    padding:                     10px;
+    border:                      1px solid;
+    border-radius:               6px;
+    border-color:                #333333;
+    background-color:            #0d0d0d;
+    text-color:                  @fg;
+}
+
+textbox {
+    text-color:                  @fg;
+    horizontal-align:            0.5;
+    vertical-align:              0.5;
+}
+
+listview {
+    enabled:                     true;
+    columns:                     1;
+    lines:                       8;
+    cycle:                       true;
+    dynamic:                     true;
+    scrollbar:                   false;
+    layout:                      vertical;
+    reverse:                     false;
+    fixed-height:                true;
+    fixed-columns:               true;
+    spacing:                     2px;
+    margin:                      0px;
+    padding:                     0px;
+}
+
+element {
+    enabled:                     true;
+    spacing:                     0px;
+    margin:                      0px;
+    padding:                     4px 8px;
+    border-radius:               4px;
+    text-color:                  @fg;
+}
+
+element normal.normal {
+    background-color:            transparent;
+    text-color:                  @fg;
+}
+
+element selected.normal {
+    background-color:            @selected-bg;
+    text-color:                  @selected-fg;
+}
+
+element-text {
+    text-color:                  inherit;
+    font:                        "JetBrains Mono Bold 11";
+    horizontal-align:            0.5;
+    vertical-align:              0.5;
+}

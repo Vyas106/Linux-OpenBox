@@ -1,0 +1,6 @@
+i am usieng Open BOX Linux Powerd BY Cachy OS arch 
+if You make in UI make MInimal and MOrden and 100%   Black for BG ad white for text and boder 
+
+90% shell (startup, keybindings, configuration).
+
+10% Python (complex utilities only).
