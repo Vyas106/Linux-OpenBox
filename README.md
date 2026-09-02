@@ -6,6 +6,19 @@ Designed with a **100% Pure Black & White Monochrome Aesthetic** (`#000000` back
 
 ---
 
+## 📦 Modular Repositories
+
+This setup is split into modular, standalone repositories for easy plug-and-play installation:
+
+- ⚙️ [**Linux-OpenBox-Managers**](https://github.com/Vyas106/Linux-OpenBox-Managers) — Wi-Fi, Hotspot, Brightness, Volume, and Control Center GUI/TUI controllers.
+- 📊 [**Linux-OpenBox-Panel**](https://github.com/Vyas106/Linux-OpenBox-Panel) — Minimalist Polybar setup and custom system widgets.
+- 🖥️ [**Linux-OpenBox-Conky**](https://github.com/Vyas106/Linux-OpenBox-Conky) — Desktop sidebar system monitor HUD.
+- 🔔 [**Linux-OpenBox-Dunst**](https://github.com/Vyas106/Linux-OpenBox-Dunst) — Monochrome Dunst notification daemon and smart lock screen suite.
+- 🎯 [**Linux-OpenBox-Rofi**](https://github.com/Vyas106/Linux-OpenBox-Rofi) — App launcher theme and popup calendar HUD.
+- 🪟 [**Linux-OpenBox-Core**](https://github.com/Vyas106/Linux-OpenBox-Core) — Core Openbox window manager configuration (`rc.xml`, `autostart`).
+
+---
+
 ## 🌟 Features & Highlights
 
 - 🖥️ **Pure Monochrome Aesthetic**: High-contrast, OLED-friendly, distraction-free pure black & white interface across all components.

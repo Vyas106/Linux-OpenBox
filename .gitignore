@@ -1,0 +1,5 @@
+repos_staging/
+__pycache__/
+*.o
+*.so
+polybar/scripts/window_actions
