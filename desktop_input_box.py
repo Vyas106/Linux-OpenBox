@@ -12,6 +12,7 @@ Features:
 
 import os
 import sys
+import re
 import json
 import time
 import urllib.request
@@ -26,6 +27,18 @@ import gi
 gi.require_version("Gtk", "3.0")
 gi.require_version("Gdk", "3.0")
 from gi.repository import Gtk, Gdk, GLib, Pango
+
+# Code syntax highlighting keywords
+KEYWORDS = {
+    'import', 'from', 'as', 'def', 'class', 'return', 'if', 'elif', 'else',
+    'for', 'while', 'in', 'try', 'except', 'finally', 'with', 'lambda',
+    'yield', 'async', 'await', 'pass', 'break', 'continue', 'global',
+    'const', 'let', 'var', 'function', 'export', 'default', 'new', 'this',
+    'echo', 'sudo', 'cat', 'grep', 'pacman', 'git', 'export', 'source', 'bash',
+    'sh', 'chmod', 'mkdir', 'rm', 'cp', 'mv', 'systemctl',
+    'None', 'True', 'False', 'null', 'true', 'false', 'int', 'float', 'str', 'bool',
+    'void', 'public', 'private', 'static', 'self'
+}
 
 # -----------------------------------------------------------------------------
 # CSS STYLING (Monochrome Conky Aesthetic with Green Status Accents)
@@ -327,6 +340,8 @@ class DesktopInputBox(Gtk.Window):
         self.is_generating = False
         self.stop_requested = False
         self.current_stream_thread = None
+        self.user_prompt_text = ""
+        self.raw_assistant_response = ""
         
         # Window attributes
         self.set_size_request(self.BOX_WIDTH, -1)
@@ -422,16 +437,33 @@ class DesktopInputBox(Gtk.Window):
         self.response_view.set_editable(False)
         self.response_view.set_cursor_visible(False)
         self.response_view.set_wrap_mode(Gtk.WrapMode.WORD_CHAR)
-        self.response_view.set_left_margin(2)
-        self.response_view.set_right_margin(2)
+        self.response_view.set_left_margin(4)
+        self.response_view.set_right_margin(4)
+        self.response_view.set_pixels_above_lines(2)
+        self.response_view.set_pixels_below_lines(2)
         self.response_buffer = self.response_view.get_buffer()
         
-        # Text Tags for styling markdown-like elements
-        self.tag_bold = self.response_buffer.create_tag("bold", weight=Pango.Weight.BOLD, foreground="#FFFFFF")
-        self.tag_prompt = self.response_buffer.create_tag("prompt", foreground="#50FA7B", weight=Pango.Weight.BOLD)
-        self.tag_meta = self.response_buffer.create_tag("meta", foreground="#808080", scale=0.85)
-        self.tag_code = self.response_buffer.create_tag("code", foreground="#F1FA8C", background="#1A1A1A", font="JetBrainsMono Nerd Font 9")
-        self.tag_error = self.response_buffer.create_tag("error", foreground="#FF5555")
+        # Comprehensive Markdown & Code Syntax Tags
+        self.tags = {
+            'h1': self.response_buffer.create_tag("h1", weight=Pango.Weight.BOLD, foreground="#50FA7B", scale=1.14),
+            'h2': self.response_buffer.create_tag("h2", weight=Pango.Weight.BOLD, foreground="#8BE9FD", scale=1.08),
+            'h3': self.response_buffer.create_tag("h3", weight=Pango.Weight.BOLD, foreground="#F1FA8C", scale=1.03),
+            'h4': self.response_buffer.create_tag("h4", weight=Pango.Weight.BOLD, foreground="#BD93F9"),
+            'bold': self.response_buffer.create_tag("bold", weight=Pango.Weight.BOLD, foreground="#FFFFFF"),
+            'italic': self.response_buffer.create_tag("italic", style=Pango.Style.ITALIC, foreground="#D0D0D0"),
+            'inline_code': self.response_buffer.create_tag("inline_code", foreground="#50FA7B", background="#181818", font="JetBrainsMono Nerd Font 9.5"),
+            'bullet': self.response_buffer.create_tag("bullet", foreground="#50FA7B", weight=Pango.Weight.BOLD),
+            'quote': self.response_buffer.create_tag("quote", foreground="#8BE9FD", style=Pango.Style.ITALIC),
+            'code_header': self.response_buffer.create_tag("code_header", foreground="#6272A4", font="JetBrainsMono Nerd Font 9"),
+            'code_block': self.response_buffer.create_tag("code_block", foreground="#ECEFF4", font="JetBrainsMono Nerd Font 9.5"),
+            'code_kw': self.response_buffer.create_tag("code_kw", foreground="#FF79C6", weight=Pango.Weight.BOLD, font="JetBrainsMono Nerd Font 9.5"),
+            'code_str': self.response_buffer.create_tag("code_str", foreground="#F1FA8C", font="JetBrainsMono Nerd Font 9.5"),
+            'code_com': self.response_buffer.create_tag("code_com", foreground="#6272A4", style=Pango.Style.ITALIC, font="JetBrainsMono Nerd Font 9.5"),
+            'prompt': self.response_buffer.create_tag("prompt", foreground="#50FA7B", weight=Pango.Weight.BOLD),
+            'ai_title': self.response_buffer.create_tag("ai_title", foreground="#8BE9FD", weight=Pango.Weight.BOLD),
+            'meta': self.response_buffer.create_tag("meta", foreground="#707070", scale=0.85),
+            'error': self.response_buffer.create_tag("error", foreground="#FF5555"),
+        }
         
         self.response_scroll.add(self.response_view)
         self.main_box.pack_start(self.response_scroll, True, True, 0)
@@ -747,6 +779,183 @@ class DesktopInputBox(Gtk.Window):
         self.btn_mode.set_label(f"{icon} {self.selected_mode}")
         self.btn_mode.set_tooltip_text(f"Agent Mode: {self.selected_mode}")
 
+    # -------------------------------------------------------------------------
+    # Markdown & Code Syntax Parsing Engine
+    # -------------------------------------------------------------------------
+    def parse_code_line(self, line):
+        tokens = []
+        pattern = re.compile(r'(#.*|//.*|\"[^\"]*\"|\'[^\']*\'|\b\w+\b|[^\s\w]+|\s+)')
+        for m in pattern.finditer(line):
+            tok = m.group(0)
+            if tok.startswith('#') or tok.startswith('//'):
+                tokens.append(('comment', tok))
+            elif (tok.startswith('"') and tok.endswith('"')) or (tok.startswith("'") and tok.endswith("'")):
+                tokens.append(('string', tok))
+            elif tok in KEYWORDS:
+                tokens.append(('keyword', tok))
+            else:
+                tokens.append(('normal', tok))
+        return tokens
+
+    def insert_inline_markdown(self, line, base_tag=None):
+        pattern = re.compile(r'(\*\*[^*]+\*\*|`[^`]+`|\*[^*]+\*)')
+        pos = 0
+        for match in pattern.finditer(line):
+            start, end = match.span()
+            if start > pos:
+                segment = line[pos:start]
+                end_iter = self.response_buffer.get_end_iter()
+                if base_tag:
+                    self.response_buffer.insert_with_tags(end_iter, segment, base_tag)
+                else:
+                    self.response_buffer.insert(end_iter, segment)
+            token = match.group(0)
+            end_iter = self.response_buffer.get_end_iter()
+            if token.startswith('**') and token.endswith('**'):
+                self.response_buffer.insert_with_tags(end_iter, token[2:-2], self.tags['bold'])
+            elif token.startswith('`') and token.endswith('`'):
+                self.response_buffer.insert_with_tags(end_iter, f" {token[1:-1]} ", self.tags['inline_code'])
+            elif token.startswith('*') and token.endswith('*'):
+                self.response_buffer.insert_with_tags(end_iter, token[1:-1], self.tags['italic'])
+            pos = end
+        if pos < len(line):
+            segment = line[pos:]
+            end_iter = self.response_buffer.get_end_iter()
+            if base_tag:
+                self.response_buffer.insert_with_tags(end_iter, segment, base_tag)
+            else:
+                self.response_buffer.insert(end_iter, segment)
+
+    def insert_markdown_text(self, markdown_text):
+        lines = markdown_text.split('\n')
+        in_code_block = False
+        code_lang = 'CODE'
+        for i, line in enumerate(lines):
+            stripped = line.strip()
+            
+            # Code block delimiter
+            if stripped.startswith('```'):
+                if not in_code_block:
+                    in_code_block = True
+                    lang_match = stripped[3:].strip()
+                    code_lang = lang_match.upper() if lang_match else 'CODE'
+                    icon = '󰌠' if 'PY' in code_lang else ('󰒓' if 'SH' in code_lang or 'BASH' in code_lang else '󰅩')
+                    header_text = f"╭─ {icon} [ {code_lang} ] " + "─" * max(4, 30 - len(code_lang)) + "\n"
+                    end_iter = self.response_buffer.get_end_iter()
+                    self.response_buffer.insert_with_tags(end_iter, header_text, self.tags['code_header'])
+                else:
+                    in_code_block = False
+                    footer_text = "╰" + "─" * 40 + "\n"
+                    end_iter = self.response_buffer.get_end_iter()
+                    self.response_buffer.insert_with_tags(end_iter, footer_text, self.tags['code_header'])
+                continue
+                
+            # Inside Code Block
+            if in_code_block:
+                end_iter = self.response_buffer.get_end_iter()
+                self.response_buffer.insert_with_tags(end_iter, "│ ", self.tags['code_header'])
+                tokens = self.parse_code_line(line)
+                for t_type, t_val in tokens:
+                    end_iter = self.response_buffer.get_end_iter()
+                    if t_type == 'keyword':
+                        self.response_buffer.insert_with_tags(end_iter, t_val, self.tags['code_kw'])
+                    elif t_type == 'string':
+                        self.response_buffer.insert_with_tags(end_iter, t_val, self.tags['code_str'])
+                    elif t_type == 'comment':
+                        self.response_buffer.insert_with_tags(end_iter, t_val, self.tags['code_com'])
+                    else:
+                        self.response_buffer.insert_with_tags(end_iter, t_val, self.tags['code_block'])
+                end_iter = self.response_buffer.get_end_iter()
+                self.response_buffer.insert(end_iter, "\n")
+                continue
+                
+            # Headings
+            if stripped.startswith('#### '):
+                end_iter = self.response_buffer.get_end_iter()
+                self.response_buffer.insert_with_tags(end_iter, f"▪ {stripped[5:].strip()}\n", self.tags['h4'])
+                continue
+            elif stripped.startswith('### '):
+                end_iter = self.response_buffer.get_end_iter()
+                self.response_buffer.insert_with_tags(end_iter, f"● {stripped[4:].strip()}\n", self.tags['h3'])
+                continue
+            elif stripped.startswith('## '):
+                end_iter = self.response_buffer.get_end_iter()
+                self.response_buffer.insert_with_tags(end_iter, f"▸ {stripped[3:].strip()}\n", self.tags['h2'])
+                continue
+            elif stripped.startswith('# '):
+                end_iter = self.response_buffer.get_end_iter()
+                self.response_buffer.insert_with_tags(end_iter, f"◆ {stripped[2:].strip()}\n", self.tags['h1'])
+                continue
+                
+            # Horizontal Divider
+            if stripped in ("---", "***", "___") or (len(stripped) >= 3 and set(stripped) <= {"-", "*", "_"}):
+                end_iter = self.response_buffer.get_end_iter()
+                self.response_buffer.insert_with_tags(end_iter, "─" * 40 + "\n", self.tags['meta'])
+                continue
+                
+            # Blockquote
+            if stripped.startswith('> '):
+                end_iter = self.response_buffer.get_end_iter()
+                self.response_buffer.insert_with_tags(end_iter, "┃ ", self.tags['code_header'])
+                self.insert_inline_markdown(stripped[2:].strip() + "\n", base_tag=self.tags['quote'])
+                continue
+                
+            # Bullet list
+            if stripped.startswith(('- ', '* ', '+ ')):
+                end_iter = self.response_buffer.get_end_iter()
+                self.response_buffer.insert_with_tags(end_iter, "  • ", self.tags['bullet'])
+                self.insert_inline_markdown(stripped[2:].strip() + "\n")
+                continue
+                
+            # Numbered list
+            num_match = re.match(r"^(\d+\.)\s+(.*)", stripped)
+            if num_match:
+                n_pref, n_body = num_match.groups()
+                end_iter = self.response_buffer.get_end_iter()
+                self.response_buffer.insert_with_tags(end_iter, f"  {n_pref} ", self.tags['bullet'])
+                self.insert_inline_markdown(n_body + "\n")
+                continue
+                
+            # Regular text line with inline formatting
+            self.insert_inline_markdown(line + ("\n" if i < len(lines) - 1 or line else ""))
+            
+        if in_code_block:
+            end_iter = self.response_buffer.get_end_iter()
+            self.response_buffer.insert_with_tags(end_iter, "╰" + "─" * 40 + "\n", self.tags['code_header'])
+
+    def render_full_conversation(self, meta_text=""):
+        self.response_buffer.set_text("")
+        end_iter = self.response_buffer.get_end_iter()
+        
+        # 1. User Prompt
+        if self.user_prompt_text:
+            self.response_buffer.insert_with_tags(
+                end_iter,
+                f"󰒓 YOU [{self.selected_mode.upper()} • {self.selected_level}]:\n",
+                self.tags['prompt']
+            )
+            end_iter = self.response_buffer.get_end_iter()
+            self.response_buffer.insert(end_iter, f"{self.user_prompt_text}\n\n")
+            
+        # 2. Assistant Header
+        end_iter = self.response_buffer.get_end_iter()
+        self.response_buffer.insert_with_tags(
+            end_iter,
+            f"󰚩 AI ({self.selected_model.split(':')[0]}):\n",
+            self.tags['ai_title']
+        )
+        
+        # 3. Formatted Markdown Output
+        if self.raw_assistant_response:
+            self.insert_markdown_text(self.raw_assistant_response)
+            
+        # 4. Completion Meta
+        if meta_text:
+            end_iter = self.response_buffer.get_end_iter()
+            self.response_buffer.insert_with_tags(end_iter, f"\n{meta_text}\n", self.tags['meta'])
+            
+        self.adjust_response_height()
+
     def on_send_clicked(self, widget):
         if self.is_generating:
             # Stop button pressed
@@ -775,34 +984,17 @@ class DesktopInputBox(Gtk.Window):
         self.divider2.set_visible(True)
         self.btn_copy.set_visible(True)
         
-        # Format initial chat entry
-        self.response_buffer.set_text("")
-        end_iter = self.response_buffer.get_end_iter()
+        # Store prompt and reset response buffer
+        self.user_prompt_text = prompt
+        self.raw_assistant_response = ""
+        self.render_full_conversation()
         
-        # User Prompt Header
-        self.response_buffer.insert_with_tags(
-            end_iter,
-            f"󰒓 YOU [{self.selected_mode.upper()} • {self.selected_level}]:\n",
-            self.tag_prompt
-        )
-        end_iter = self.response_buffer.get_end_iter()
-        self.response_buffer.insert(end_iter, f"{prompt}\n\n")
-        
-        # Assistant Header
-        end_iter = self.response_buffer.get_end_iter()
-        self.response_buffer.insert_with_tags(
-            end_iter,
-            f"󰚩 AI ({self.selected_model.split(':')[0]}):\n",
-            self.tag_bold
-        )
-        
-        # Set busy UI state and adjust initial size
+        # Set busy UI state
         self.is_generating = True
         self.stop_requested = False
         self.btn_send.set_label("󰐊 Stop")
         self.btn_send.get_style_context().add_class("stop-btn")
         self.set_status("● GENERATING...", "busy")
-        self.adjust_response_height()
         
         # Run streaming in background
         self.current_stream_thread = threading.Thread(
@@ -820,20 +1012,17 @@ class DesktopInputBox(Gtk.Window):
             self.lbl_status.get_style_context().add_class(style_class)
 
     def on_copy_response(self, widget):
-        text = self.response_buffer.get_text(
-            self.response_buffer.get_start_iter(),
-            self.response_buffer.get_end_iter(),
-            True
-        )
-        if text:
+        if self.raw_assistant_response:
             clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
-            clipboard.set_text(text, -1)
+            clipboard.set_text(self.raw_assistant_response, -1)
             self.set_status("✓ COPIED", "")
             GLib.timeout_add(1500, lambda: self.set_status("● ACTIVE", ""))
 
     def on_clear_all(self, widget):
         if self.is_generating:
             self.stop_requested = True
+        self.user_prompt_text = ""
+        self.raw_assistant_response = ""
         self.response_buffer.set_text("")
         self.response_scroll.set_visible(False)
         self.divider2.set_visible(False)
@@ -927,9 +1116,8 @@ class DesktopInputBox(Gtk.Window):
             GLib.idle_add(self.finish_generation_stream, 0, False)
 
     def append_stream_chunk(self, chunk):
-        end_iter = self.response_buffer.get_end_iter()
-        self.response_buffer.insert(end_iter, chunk)
-        self.adjust_response_height()
+        self.raw_assistant_response += chunk
+        self.render_full_conversation()
 
     def finish_generation_stream(self, elapsed, success):
         self.is_generating = False
@@ -939,16 +1127,11 @@ class DesktopInputBox(Gtk.Window):
         
         if success:
             self.set_status("● ACTIVE", "")
-            end_iter = self.response_buffer.get_end_iter()
-            self.response_buffer.insert_with_tags(
-                end_iter,
-                f"\n\n✓ {self.selected_model.split(':')[0]} • {elapsed:.1f}s\n",
-                self.tag_meta
-            )
+            meta = f"✓ {self.selected_model.split(':')[0]} • {elapsed:.1f}s"
+            self.render_full_conversation(meta_text=meta)
         else:
             self.set_status("● ERROR", "error")
-            
-        self.adjust_response_height()
+            self.render_full_conversation()
 
 
 def main():
