@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python3
 """
 Dynamic Pipe Menu Generator for Openbox & Labwc

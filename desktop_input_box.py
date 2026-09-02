@@ -330,7 +330,7 @@ class DesktopInputBox(Gtk.Window):
         
         # Window attributes
         self.set_size_request(self.BOX_WIDTH, -1)
-        self.set_resizable(False)
+        self.set_resizable(True)
         self.set_decorated(False)
         self.set_skip_taskbar_hint(True)
         self.set_skip_pager_hint(True)
@@ -412,8 +412,9 @@ class DesktopInputBox(Gtk.Window):
         self.response_scroll = Gtk.ScrolledWindow()
         self.response_scroll.get_style_context().add_class("response-scroll")
         self.response_scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+        self.response_scroll.set_propagate_natural_height(True)
         self.response_scroll.set_min_content_height(0)
-        self.response_scroll.set_max_content_height(240)
+        self.response_scroll.set_max_content_height(self.get_max_allowed_response_height())
         self.response_scroll.set_visible(False)
         
         self.response_view = Gtk.TextView()
@@ -583,25 +584,100 @@ class DesktopInputBox(Gtk.Window):
             pass
         return None
 
-    def reposition_above_conky(self):
-        """Keep bottom edge of this widget docked directly above ConkyGreeting."""
+    def get_max_allowed_response_height(self):
+        TOP_PANEL_MARGIN = 44  # Space for top Polybar panel
+        screen = self.get_screen()
+        sh = screen.get_height()
         geom = self.get_conky_geometry() or self.conky_geometry
+        if geom:
+            _, conky_y, _, _ = geom
+        else:
+            conky_y = sh - 175
+            
+        # Total available height between Conky greeting and the top panel
+        available_height = max(180, (conky_y - 6) - TOP_PANEL_MARGIN)
+        # Fixed UI overhead: header, dividers, input box, bottom controls (~160px)
+        overhead = 160
+        max_response_h = max(120, available_height - overhead)
+        return max_response_h
+
+    def calculate_response_needed_height(self):
+        """Calculate required pixel height for the response TextView as text streams."""
+        text = self.response_buffer.get_text(
+            self.response_buffer.get_start_iter(),
+            self.response_buffer.get_end_iter(),
+            True
+        )
+        if not text.strip():
+            return 0
+            
+        total_lines = 0
+        for l in text.split("\n"):
+            # ~48 chars per line in 440-470px width
+            total_lines += max(1, (len(l) + 47) // 48)
+            
+        estimated_height = total_lines * 19 + 20
+        
+        try:
+            end_iter = self.response_buffer.get_end_iter()
+            rect = self.response_view.get_iter_location(end_iter)
+            iter_height = rect.y + rect.height + 20
+            return max(estimated_height, iter_height)
+        except Exception:
+            return estimated_height
+
+    def adjust_response_height(self):
+        """Dynamically resize response area as text grows, capping at top panel and scrolling thereafter."""
+        if not self.response_scroll.get_visible():
+            return
+            
+        max_allowed = self.get_max_allowed_response_height()
+        needed = self.calculate_response_needed_height()
+        
+        # Height dynamically matches text content, clamped at max_allowed (touching top panel)
+        target_height = min(needed, max_allowed)
+        target_height = max(35, target_height)
+        
+        self.response_scroll.set_min_content_height(target_height)
+        self.response_scroll.set_max_content_height(max_allowed)
+        
+        self.reposition_above_conky()
+        
+        # When text reaches top panel max height, auto-scroll to bottom smoothly
+        if needed >= max_allowed:
+            adj = self.response_scroll.get_vadjustment()
+            adj.set_value(adj.get_upper() - adj.get_page_size())
+
+    def reposition_above_conky(self):
+        """Keep bottom edge of this widget docked directly above ConkyGreeting, dynamically expanding upwards up to top panel."""
+        TOP_PANEL_MARGIN = 44  # Polybar panel margin
+        geom = self.get_conky_geometry() or self.conky_geometry
+        screen = self.get_screen()
+        sh = screen.get_height()
+        
         if geom:
             self.conky_geometry = geom
             conky_x, conky_y, conky_w, _ = geom
             self.BOX_WIDTH = conky_w
-            
-            # Get current widget height
-            _, height = self.get_size()
+            target_bottom = conky_y - 6
             target_x = conky_x
-            target_y = conky_y - height - 6  # 6px snug gap above greeting box
-            self.move(target_x, target_y)
         else:
-            # Fallback bottom-left layout
-            screen = self.get_screen()
-            sh = screen.get_height()
-            _, height = self.get_size()
-            self.move(9, max(10, sh - 175 - height))
+            target_bottom = sh - 175
+            target_x = 9
+            
+        # Update maximum allowable response scroll height
+        max_resp_h = self.get_max_allowed_response_height()
+        self.response_scroll.set_max_content_height(max_resp_h)
+        
+        # Calculate target Y based on current window height
+        _, height = self.get_size()
+        target_y = target_bottom - height
+        
+        # Limit upward expansion so it maxes out cleanly right below the top panel
+        if target_y < TOP_PANEL_MARGIN:
+            target_y = TOP_PANEL_MARGIN
+            
+        self.move(target_x, target_y)
 
     def on_size_allocate(self, widget, allocation):
         # Reposition to stay locked right above the greeting box when height changes
@@ -698,7 +774,6 @@ class DesktopInputBox(Gtk.Window):
         self.response_scroll.set_visible(True)
         self.divider2.set_visible(True)
         self.btn_copy.set_visible(True)
-        self.response_scroll.set_min_content_height(90)
         
         # Format initial chat entry
         self.response_buffer.set_text("")
@@ -721,12 +796,13 @@ class DesktopInputBox(Gtk.Window):
             self.tag_bold
         )
         
-        # Set busy UI state
+        # Set busy UI state and adjust initial size
         self.is_generating = True
         self.stop_requested = False
         self.btn_send.set_label("󰐊 Stop")
         self.btn_send.get_style_context().add_class("stop-btn")
         self.set_status("● GENERATING...", "busy")
+        self.adjust_response_height()
         
         # Run streaming in background
         self.current_stream_thread = threading.Thread(
@@ -766,7 +842,8 @@ class DesktopInputBox(Gtk.Window):
         self.set_placeholder()
         self.input_scroll.set_min_content_height(32)
         self.set_status("● ACTIVE", "")
-        self.reposition_above_conky()
+        self.resize(self.BOX_WIDTH, 1)
+        GLib.idle_add(self.reposition_above_conky)
 
     # -------------------------------------------------------------------------
     # Ollama Streaming Generation Engine
@@ -852,9 +929,7 @@ class DesktopInputBox(Gtk.Window):
     def append_stream_chunk(self, chunk):
         end_iter = self.response_buffer.get_end_iter()
         self.response_buffer.insert(end_iter, chunk)
-        # Scroll to bottom
-        adj = self.response_scroll.get_vadjustment()
-        adj.set_value(adj.get_upper() - adj.get_page_size())
+        self.adjust_response_height()
 
     def finish_generation_stream(self, elapsed, success):
         self.is_generating = False
@@ -873,7 +948,7 @@ class DesktopInputBox(Gtk.Window):
         else:
             self.set_status("● ERROR", "error")
             
-        self.reposition_above_conky()
+        self.adjust_response_height()
 
 
 def main():
