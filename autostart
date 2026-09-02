@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-;
 # =============================================================================
 # Openbox Autostart - Minimal & Modern Polybar + Conky (CachyOS Arch Linux)
 # =============================================================================
@@ -16,15 +15,20 @@ picom -b &
 
 # Start the NetworkManager Applet for system tray
 nm-applet &
-
-# Sync Polybar, Conky, Rofi, and Dunst configurations
-mkdir -p /home/vishal/.config/polybar/scripts /home/vishal/.config/conky /home/vishal/.config/rofi /home/vishal/.config/dunst
+                                      
+# Sync Polybar, Conky, Rofi, Dunst, Picom, and Openbox configurations
+mkdir -p /home/vishal/.config/polybar/scripts /home/vishal/.config/conky /home/vishal/.config/rofi /home/vishal/.config/dunst /home/vishal/.config/openbox /home/vishal/.config/picom /home/vishal/.themes/Onyx-Modern/openbox-3
 cp -rf /home/vishal/Useless/polybar/* /home/vishal/.config/polybar/ 2>/dev/null
 cp -rf /home/vishal/Useless/conky/* /home/vishal/.config/conky/ 2>/dev/null
 cp -f /home/vishal/Useless/launcher.rasi /home/vishal/.config/rofi/launcher.rasi 2>/dev/null
 cp -f /home/vishal/Useless/dunst/dunstrc /home/vishal/.config/dunst/dunstrc 2>/dev/null
+cp -f /home/vishal/Useless/picom.conf /home/vishal/.config/picom/picom.conf 2>/dev/null
+cp -f /home/vishal/Useless/menu/menu.xml /home/vishal/.config/openbox/menu.xml 2>/dev/null
+cp -f /home/vishal/Useless/rc.xml /home/vishal/.config/openbox/rc.xml 2>/dev/null
+cp -f /home/vishal/Useless/menu/themerc /home/vishal/.themes/Onyx-Modern/openbox-3/themerc 2>/dev/null
+cp -f /home/vishal/Useless/autostart /home/vishal/.config/openbox/autostart 2>/dev/null
 
-chmod +x /home/vishal/.config/polybar/*.sh /home/vishal/.config/polybar/scripts/*.sh /home/vishal/.config/conky/*.sh 2>/dev/null
+chmod +x /home/vishal/.config/polybar/*.sh /home/vishal/.config/polybar/scripts/*.sh /home/vishal/.config/conky/*.sh /home/vishal/.config/conky/*.py /home/vishal/Useless/menu/menu_generator.py /home/vishal/Useless/copyBord/*.sh /home/vishal/Useless/copyBord/*.py 2>/dev/null
 
 # Clean up any leftover previous bottom panels (plank, tint2)
 killall -q plank tint2 2>/dev/null
@@ -38,4 +42,10 @@ killall -q plank tint2 2>/dev/null
 # Start Lock Screen Daemon (handles laptop lid close, suspend, idle lock, logind & DBus lock signals)
 python3 /home/vishal/Useless/lock_daemon.py &
 
+# Start copyBord Auto-Clipboard Daemon (auto copy screenshots to clipboard)
+pkill -f "copyBord/copybord_daemon.py" 2>/dev/null
+python3 /home/vishal/Useless/copyBord/copybord_daemon.py &
 
+
+# Start Desktop Input Box (positioned directly above bottom-left Conky Greeting box)
+"/home/vishal/Useless/launch_input_box.sh" &

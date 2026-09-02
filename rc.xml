@@ -9,7 +9,7 @@
 <resistance>
   <strength>10</strength>
   <screen_edge_strength>20</screen_edge_strength>
-</resistance>
+</resistance>   
 
 <focus>
   <focusNew>yes</focusNew>
@@ -49,7 +49,7 @@
 </placement>
 
 <theme>
-  <name>Clearlooks</name>
+  <name>Onyx-Modern</name>
   <titleLayout>NLIMC</titleLayout>
   <!--
       available characters are NDSLIMC, each can occur at most once.
@@ -64,8 +64,8 @@
   <keepBorder>yes</keepBorder>
   <animateIconify>yes</animateIconify>
   <font place="ActiveWindow">
-    <name>sans</name>
-    <size>8</size>
+    <name>JetBrainsMono Nerd Font</name>
+    <size>9</size>
     <!-- font size in points -->
     <weight>bold</weight>
     <!-- 'bold' or 'normal' -->
@@ -73,16 +73,7 @@
     <!-- 'italic' or 'normal' -->
   </font>
   <font place="InactiveWindow">
-    <name>sans</name>
-    <size>8</size>
-    <!-- font size in points -->
-    <weight>bold</weight>
-    <!-- 'bold' or 'normal' -->
-    <slant>normal</slant>
-    <!-- 'italic' or 'normal' -->
-  </font>
-  <font place="MenuHeader">
-    <name>sans</name>
+    <name>JetBrainsMono Nerd Font</name>
     <size>9</size>
     <!-- font size in points -->
     <weight>normal</weight>
@@ -90,9 +81,18 @@
     <slant>normal</slant>
     <!-- 'italic' or 'normal' -->
   </font>
+  <font place="MenuHeader">
+    <name>JetBrainsMono Nerd Font</name>
+    <size>10</size>
+    <!-- font size in points -->
+    <weight>bold</weight>
+    <!-- 'bold' or 'normal' -->
+    <slant>normal</slant>
+    <!-- 'italic' or 'normal' -->
+  </font>
   <font place="MenuItem">
-    <name>sans</name>
-    <size>9</size>
+    <name>JetBrainsMono Nerd Font</name>
+    <size>10</size>
     <!-- font size in points -->
     <weight>normal</weight>
     <!-- 'bold' or 'normal' -->
@@ -213,6 +213,18 @@
     </action>
   </keybind>
 
+  <!-- Keybinding to launch Obsidian Notes (Super+N or Super+Shift+O) -->
+  <keybind key="W-n">
+    <action name="Execute">
+      <command>obsidian</command>
+    </action>
+  </keybind>
+  <keybind key="W-S-o">
+    <action name="Execute">
+      <command>obsidian</command>
+    </action>
+  </keybind>
+
   <!-- Volume Up (FN + F3 / XF86AudioRaiseVolume) -->
   <keybind key="XF86AudioRaiseVolume">
     <action name="Execute">
@@ -248,17 +260,38 @@
     </action>
   </keybind>
 
-  <!-- Screenshot: Win+Shift+S = select region (like Windows Snipping Tool) -->
-  <keybind key="W-S-s">
+  <!-- Desktop AI Agent: Win+A = Toggle Desktop Assistant -->
+  <keybind key="W-a">
     <action name="Execute">
-      <command>bash -c 'FILE=~/Pictures/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png; scrot -s -f -z "$FILE" &amp;&amp; dunstify -i camera "Screenshot saved" "Region saved to Pictures/Screenshots/"'</command>
+      <command>&quot;/home/vishal/Useless/Desktop AI Agent/toggle_agent.sh&quot;</command>
     </action>
   </keybind>
 
-  <!-- Screenshot: PrtSc = full screen -->
+  <!-- Screenshot: Win+Shift+S = select region (like Windows Snipping Tool) with auto-copy to clipboard (Ctrl+C) -->
+  <keybind key="W-S-s">
+    <action name="Execute">
+      <command>/home/vishal/Useless/copyBord/screenshot.sh select</command>
+    </action>
+  </keybind>
+
+  <!-- Screenshot: PrtSc = full screen with auto-copy to clipboard -->
   <keybind key="Print">
     <action name="Execute">
-      <command>bash -c 'FILE=~/Pictures/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png; scrot -z "$FILE" &amp;&amp; dunstify -i camera "Screenshot saved" "Full screen saved to Pictures/Screenshots/"'</command>
+      <command>/home/vishal/Useless/copyBord/screenshot.sh full</command>
+    </action>
+  </keybind>
+
+  <!-- Screenshot: Alt+PrtSc = active window with auto-copy to clipboard -->
+  <keybind key="A-Print">
+    <action name="Execute">
+      <command>/home/vishal/Useless/copyBord/screenshot.sh window</command>
+    </action>
+  </keybind>
+
+  <!-- Screenshot: Ctrl+PrtSc = 5-second delayed screenshot -->
+  <keybind key="C-Print">
+    <action name="Execute">
+      <command>/home/vishal/Useless/copyBord/screenshot.sh delay 5</command>
     </action>
   </keybind>
 
@@ -731,6 +764,28 @@
 </menu>
 
 <applications>
+  <!-- Desktop AI Assistant Widget (Positioned on the Right Side of Desktop) -->
+  <application title="Desktop AI Assistant">
+    <decor>no</decor>
+    <position force="yes">
+      <x>-16</x>
+      <y>46</y>
+    </position>
+  </application>
+
+  <!-- Desktop Input Box (Positioned on Top of Bottom-Left Conky Greeting Box) -->
+  <application title="Desktop Input Box" class="DesktopInputBox">
+    <decor>no</decor>
+    <desktop>all</desktop>
+    <layer>normal</layer>
+    <skip_taskbar>yes</skip_taskbar>
+    <skip_pager>yes</skip_pager>
+    <position force="yes">
+      <x>24</x>
+      <y>-190</y>
+    </position>
+  </application>
+
 <!--
   # this is an example with comments through out. use these to make your
   # own rules, but without the comments of course.

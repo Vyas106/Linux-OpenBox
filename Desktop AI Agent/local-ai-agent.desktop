@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Local AI Agent
+GenericName=Desktop AI Assistant
+Comment=Native Linux AI Agent powered by local Qwen 2.5:3B
+Exec=/home/vishal/Useless/Desktop AI Agent/run.sh
+Icon=utilities-terminal
+Terminal=false
+Type=Application
+Categories=Utility;Development;System;
+Keywords=ai;agent;ollama;qwen;assistant;terminal;
+StartupNotify=true

@@ -1,0 +1,57 @@
+# Onyx Modern - Pure Minimalist Dark Aesthetic for Openbox & Labwc Menu
+
+# Window Borders & Geometry
+border.width: 1
+border.color: #242424
+window.active.border.color: #2563eb
+window.inactive.border.color: #1f1f1f
+window.client.padding.width: 0
+window.client.padding.height: 0
+padding.width: 4
+padding.height: 4
+
+# Titlebars
+window.active.title.bg: Flat Solid
+window.active.title.bg.color: #0d0d0d
+window.active.label.text.color: #ffffff
+
+window.inactive.title.bg: Flat Solid
+window.inactive.title.bg.color: #080808
+window.inactive.label.text.color: #666666
+
+window.active.button.unpressed.bg: Flat Solid
+window.active.button.unpressed.bg.color: #0d0d0d
+window.active.button.unpressed.image.color: #ffffff
+
+window.inactive.button.unpressed.bg: Flat Solid
+window.inactive.button.unpressed.bg.color: #080808
+window.inactive.button.unpressed.image.color: #555555
+
+# Menu Geometry & Borders
+menu.border.width: 1
+menu.border.color: #222222
+menu.overlap.x: 2
+menu.overlap.y: 0
+
+# Menu Title
+menu.title.bg: Flat Solid
+menu.title.bg.color: #000000
+menu.title.text.color: #ffffff
+menu.title.text.justify: Left
+
+# Menu Items (Inactive)
+menu.items.bg: Flat Solid
+menu.items.bg.color: #000000
+menu.items.text.color: #e2e8f0
+menu.items.disabled.text.color: #52525b
+
+# Menu Items Active (Hover Highlight)
+menu.items.active.bg: Flat Solid
+menu.items.active.bg.color: #1e3a8a
+menu.items.active.text.color: #ffffff
+
+# Separator
+menu.separator.color: #242424
+menu.separator.width: 1
+menu.separator.padding.width: 6
+menu.separator.padding.height: 3

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Local AI Agent
+Comment=Autonomous Native Desktop AI Assistant (Knowledge, Task, Code)
+Exec=/bin/bash "/home/vishal/Useless/Desktop AI Agent/run.sh"
+Icon=utilities-terminal
+Terminal=false
+Type=Application
+Categories=Development;System;Utility;
+Keywords=AI;Assistant;LLM;Ollama;Agent;Knowledge;Code;

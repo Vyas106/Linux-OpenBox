@@ -1,0 +1,4 @@
+# Python dependencies for Native Linux Desktop AI Agent
+# Note: GTK4 and PyGObject are system packages (python-gobject, gtk4) on Arch Linux.
+requests>=2.31.0
+tomli>=2.0.1; python_version < '3.11'

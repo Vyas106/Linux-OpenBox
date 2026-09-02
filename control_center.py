@@ -443,10 +443,10 @@ class ControlCenterWindow(Gtk.ApplicationWindow):
         lock_btn.connect("clicked", lambda _: (subprocess.Popen(["/home/vishal/Useless/lock.sh"]), self.close()))
         grid.attach(lock_btn, 0, 1, 1, 1)
 
-        # 5. Kitty Terminal
-        term_btn = self._make_tile("", "Kitty", "Terminal")
-        term_btn.connect("clicked", lambda _: (subprocess.Popen(["kitty"]), self.close()))
-        grid.attach(term_btn, 1, 1, 1, 1)
+        # 5. Obsidian Notes
+        obsidian_btn = self._make_tile("󱞁", "Obsidian", "Notes")
+        obsidian_btn.connect("clicked", lambda _: (subprocess.Popen(["obsidian"]), self.close()))
+        grid.attach(obsidian_btn, 1, 1, 1, 1)
 
         # 6. Custom App Slot
         self.custom_btn = Gtk.Button()

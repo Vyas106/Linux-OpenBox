@@ -1,0 +1,30 @@
+# Local AI Agent Configuration
+# Place this file at ~/.config/local-ai-agent/config.toml or ./config.toml
+
+# The Ollama model to use for reasoning and tool calling
+model = "qwen2.5:3b"
+
+# Local Ollama endpoint
+ollama_url = "http://localhost:11434"
+
+# Working workspace path where the agent creates/edits files and runs commands
+workspace = "~/AIWorkspace"
+
+# Maximum tool executions allowed per single task request
+max_tool_calls = 30
+
+# UI Window dimensions
+window_width = 920
+window_height = 740
+
+# Enable sleek dark theme
+dark_theme = true
+
+# Require manual user confirmation before executing dangerous commands (sudo, rm -rf, mkfs, dd, etc.)
+require_confirmation = true
+
+# Sampling temperature for Qwen model
+temperature = 0.2
+
+# Context window size in tokens
+context_length = 8192
