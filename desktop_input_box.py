@@ -44,6 +44,24 @@ KEYWORDS = {
 # CSS STYLING (Monochrome Conky Aesthetic with Green Status Accents)
 # -----------------------------------------------------------------------------
 CSS_DATA = """
+/* Universal Resets to eliminate light theme leaks, white lines, and background bleed */
+* {
+    outline: none;
+}
+
+window.desktop-ai-window {
+    background-color: transparent;
+    background: transparent;
+}
+
+box.main-card {
+    background-color: rgba(10, 10, 10, 0.95);
+    border: 1px solid #262626;
+    border-radius: 8px;
+    padding: 10px 14px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.9);
+}
+
 /* Reset all button defaults across GTK to prevent light-theme gradient leak */
 button, button * {
     background-image: none;
@@ -81,18 +99,6 @@ button:active {
     border-color: #606060;
 }
 
-window.desktop-ai-window {
-    background-color: transparent;
-}
-
-box.main-card {
-    background-color: rgba(10, 10, 10, 0.95);
-    border: 1px solid #262626;
-    border-radius: 8px;
-    padding: 10px 14px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.9);
-}
-
 /* Header */
 label.header-title {
     color: #D4D4D4;
@@ -108,6 +114,10 @@ label.status-badge {
     color: #50FA7B;
 }
 
+label.status-badge.standby {
+    color: #808080;
+}
+
 label.status-badge.busy {
     color: #FFB86C;
 }
@@ -116,11 +126,37 @@ label.status-badge.error {
     color: #FF5555;
 }
 
-separator.divider {
+separator, separator.divider {
     background-color: #202020;
+    border: none;
     min-height: 1px;
     margin-top: 6px;
     margin-bottom: 6px;
+}
+
+/* ScrolledWindow, Viewport, List and Row Resets (Prevent default GTK white backgrounds) */
+scrolledwindow,
+scrolledwindow viewport,
+viewport,
+list,
+.history-list,
+row,
+.history-row {
+    background-color: transparent;
+    background: transparent;
+    background-image: none;
+    border: none;
+    box-shadow: none;
+    outline: none;
+}
+
+row:selected,
+row:hover,
+.history-row:selected,
+.history-row:hover {
+    background-color: transparent;
+    background: transparent;
+    background-image: none;
 }
 
 /* Response / Chat Area */
@@ -129,16 +165,16 @@ scrolledwindow.response-scroll {
     border: none;
 }
 
-textview.response-view {
+textview,
+textview.response-view,
+textview text,
+textview.response-view text {
     background-color: transparent;
+    background: transparent;
+    background-image: none;
     color: #D0D0D0;
     font-family: "JetBrainsMono Nerd Font", "JetBrains Mono", monospace;
     font-size: 10px;
-}
-
-textview.response-view text {
-    background-color: transparent;
-    color: #D0D0D0;
 }
 
 /* Input Area */
@@ -156,16 +192,14 @@ box.input-wrapper:focus-within {
     box-shadow: 0 0 8px rgba(80, 250, 123, 0.18);
 }
 
-textview.input-textview {
+textview.input-textview,
+textview.input-textview text {
     background-color: transparent;
+    background: transparent;
+    background-image: none;
     color: #F8F8F2;
     font-family: "JetBrainsMono Nerd Font", "JetBrains Mono", monospace;
     font-size: 10.5px;
-}
-
-textview.input-textview text {
-    background-color: transparent;
-    color: #F8F8F2;
 }
 
 /* Bottom Controls */
@@ -236,7 +270,7 @@ button.send-btn.stop-btn:hover {
     box-shadow: 0 0 8px rgba(255, 85, 85, 0.35);
 }
 
-/* Header Action Buttons (Copy & Clear) */
+/* Header Action Buttons (History, Copy & Clear) */
 button.icon-tool-btn {
     background: transparent;
     background-color: transparent;
@@ -258,6 +292,109 @@ button.icon-tool-btn:hover {
     background-image: none;
     border-color: #333333;
     color: #FFFFFF;
+}
+
+button.icon-tool-btn.active-tool {
+    background-color: #000000;
+    border-color: #50FA7B;
+    color: #50FA7B;
+}
+
+/* History Panel & Tabs */
+box.history-container {
+    background-color: transparent;
+    padding-top: 2px;
+    padding-bottom: 4px;
+}
+
+box.history-header {
+    padding: 2px 2px 6px 2px;
+}
+
+label.history-title {
+    color: #8BE9FD;
+    font-family: "JetBrainsMono Nerd Font", "JetBrains Mono", monospace;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+button.history-clear-btn {
+    background-color: #1A0E0E;
+    border: 1px solid #3F1919;
+    border-radius: 4px;
+    color: #FF7070;
+    font-family: "JetBrainsMono Nerd Font", "JetBrains Mono", monospace;
+    font-size: 9px;
+    padding: 2px 7px;
+}
+
+button.history-clear-btn:hover {
+    background-color: #2D1212;
+    border-color: #FF5555;
+    color: #FFFFFF;
+}
+
+scrolledwindow.history-scroll {
+    background-color: transparent;
+    border: none;
+}
+
+box.history-card {
+    background-color: #111111;
+    border: 1px solid #222222;
+    border-radius: 6px;
+    padding: 6px 8px;
+    transition: all 120ms ease;
+}
+
+box.history-card:hover {
+    background-color: #161616;
+    border-color: #3C3C3C;
+}
+
+label.history-card-id {
+    color: #50FA7B;
+    font-family: "JetBrainsMono Nerd Font", "JetBrains Mono", monospace;
+    font-size: 9px;
+    font-weight: bold;
+}
+
+label.history-card-meta {
+    color: #707070;
+    font-family: "JetBrainsMono Nerd Font", "JetBrains Mono", monospace;
+    font-size: 8.5px;
+}
+
+label.history-card-prompt {
+    color: #D4D4D4;
+    font-family: "JetBrainsMono Nerd Font", "JetBrains Mono", monospace;
+    font-size: 9.5px;
+}
+
+button.history-del-btn {
+    background-color: transparent;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    color: #555555;
+    font-family: "JetBrainsMono Nerd Font", "JetBrains Mono", monospace;
+    font-size: 10px;
+    padding: 2px 5px;
+    min-height: 18px;
+    min-width: 20px;
+    transition: all 120ms ease;
+}
+
+button.history-del-btn:hover {
+    background-color: #281010;
+    border-color: #8C2C2C;
+    color: #FF5555;
+}
+
+label.history-empty-lbl {
+    color: #606060;
+    font-family: "JetBrainsMono Nerd Font", "JetBrains Mono", monospace;
+    font-size: 10px;
+    padding: 16px 0;
 }
 
 /* Scrollbars */
@@ -320,6 +457,31 @@ tooltip * {
 LEVELS = ["Short", "Medium", "Expert"]
 MODES = ["Task", "Knowledge", "Code"]
 
+# -----------------------------------------------------------------------------
+# History Storage Helpers
+# -----------------------------------------------------------------------------
+HISTORY_DIR = Path.home() / ".config" / "desktop_ai"
+HISTORY_FILE = HISTORY_DIR / "chat_history.json"
+
+
+def load_chat_history():
+    try:
+        if HISTORY_FILE.exists():
+            with open(HISTORY_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+    except Exception:
+        pass
+    return []
+
+
+def save_chat_history(items):
+    try:
+        HISTORY_DIR.mkdir(parents=True, exist_ok=True)
+        with open(HISTORY_FILE, "w", encoding="utf-8") as f:
+            json.dump(items, f, indent=2, ensure_ascii=False)
+    except Exception:
+        pass
+
 
 class DesktopInputBox(Gtk.Window):
     def __init__(self):
@@ -339,9 +501,11 @@ class DesktopInputBox(Gtk.Window):
         self.selected_mode = "Task"
         self.is_generating = False
         self.stop_requested = False
+        self.history_view_active = False
         self.current_stream_thread = None
         self.user_prompt_text = ""
         self.raw_assistant_response = ""
+        self.idle_timer_id = None
         
         # Window attributes
         self.set_size_request(self.BOX_WIDTH, -1)
@@ -349,7 +513,8 @@ class DesktopInputBox(Gtk.Window):
         self.set_decorated(False)
         self.set_skip_taskbar_hint(True)
         self.set_skip_pager_hint(True)
-        self.set_keep_below(False)
+        self.set_keep_below(True)
+        self.set_focus_on_map(False)
         self.stick()
         
         # Transparency
@@ -388,28 +553,37 @@ class DesktopInputBox(Gtk.Window):
         header = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
         
         self.lbl_title = Gtk.Label()
-        self.lbl_title.set_markup("<b>󰚩 AI COMPANION</b>")
+        self.lbl_title.set_markup("<b>󰚩 Wariable</b>")
         self.lbl_title.get_style_context().add_class("header-title")
         header.pack_start(self.lbl_title, False, False, 0)
         
-        # Status Badge (ACTIVE / BUSY / ERROR)
-        self.lbl_status = Gtk.Label(label="● ACTIVE")
+        # Status Badge (STANDBY / ACTIVE / BUSY / ERROR)
+        self.lbl_status = Gtk.Label(label="● STANDBY")
         self.lbl_status.get_style_context().add_class("status-badge")
+        self.lbl_status.get_style_context().add_class("standby")
         header.pack_start(self.lbl_status, False, False, 4)
         
         # Header Right Tools
-        header_tools = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
+        header_tools = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=4)
+        
+        # History Button (Opens/Closes history tab/view)
+        self.btn_history = Gtk.Button(label="󰋚 History")
+        self.btn_history.get_style_context().add_class("icon-tool-btn")
+        self.btn_history.set_tooltip_text("Chat History (Toggle)")
+        self.btn_history.connect("clicked", self.toggle_history_view)
+        header_tools.pack_start(self.btn_history, False, False, 0)
         
         # Copy Response Button
-        self.btn_copy = Gtk.Button(label="󰆏")
+        self.btn_copy = Gtk.Button(label="󰆏 Copy")
         self.btn_copy.get_style_context().add_class("icon-tool-btn")
         self.btn_copy.set_tooltip_text("Copy AI response")
         self.btn_copy.connect("clicked", self.on_copy_response)
+        self.btn_copy.set_no_show_all(True)
         self.btn_copy.set_visible(False)
         header_tools.pack_start(self.btn_copy, False, False, 0)
         
         # Clear / Collapse Button
-        self.btn_clear = Gtk.Button(label="󰅖")
+        self.btn_clear = Gtk.Button(label="󰅖 Close")
         self.btn_clear.get_style_context().add_class("icon-tool-btn")
         self.btn_clear.set_tooltip_text("Clear response and input (Esc)")
         self.btn_clear.connect("clicked", self.on_clear_all)
@@ -423,6 +597,55 @@ class DesktopInputBox(Gtk.Window):
         self.divider1.get_style_context().add_class("divider")
         self.main_box.pack_start(self.divider1, False, False, 0)
         
+        # 1.5 History Panel (Expandable on History button click)
+        self.history_container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
+        self.history_container.get_style_context().add_class("history-container")
+        self.history_container.set_no_show_all(True)
+        self.history_container.set_visible(False)
+        
+        # History Sub-Header
+        history_header = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        history_header.get_style_context().add_class("history-header")
+        
+        self.lbl_history_count = Gtk.Label(label=" CHAT HISTORY")
+        self.lbl_history_count.get_style_context().add_class("history-title")
+        history_header.pack_start(self.lbl_history_count, False, False, 0)
+        
+        # Right actions in history sub-header: Clear All & Close
+        hist_tools = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=4)
+        
+        self.btn_hist_clear_all = Gtk.Button(label="󰆴 Clear All")
+        self.btn_hist_clear_all.get_style_context().add_class("history-clear-btn")
+        self.btn_hist_clear_all.set_tooltip_text("Delete all chat history")
+        self.btn_hist_clear_all.connect("clicked", self.on_clear_all_history)
+        hist_tools.pack_start(self.btn_hist_clear_all, False, False, 0)
+        
+        self.btn_hist_close = Gtk.Button(label="󰅖 Close")
+        self.btn_hist_close.get_style_context().add_class("icon-tool-btn")
+        self.btn_hist_close.set_tooltip_text("Close History")
+        self.btn_hist_close.connect("clicked", self.toggle_history_view)
+        hist_tools.pack_start(self.btn_hist_close, False, False, 0)
+        
+        history_header.pack_end(hist_tools, False, False, 0)
+        self.history_container.pack_start(history_header, False, False, 0)
+        
+        # History Scroll Area & ListBox
+        self.history_scroll = Gtk.ScrolledWindow()
+        self.history_scroll.get_style_context().add_class("history-scroll")
+        self.history_scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+        self.history_scroll.set_propagate_natural_height(True)
+        self.history_scroll.set_min_content_height(0)
+        self.history_scroll.set_max_content_height(self.get_max_allowed_response_height())
+        
+        self.history_list_box = Gtk.ListBox()
+        self.history_list_box.get_style_context().add_class("history-list")
+        self.history_list_box.set_selection_mode(Gtk.SelectionMode.NONE)
+        
+        self.history_scroll.add(self.history_list_box)
+        self.history_container.pack_start(self.history_scroll, True, True, 0)
+        
+        self.main_box.pack_start(self.history_container, False, False, 0)
+        
         # 2. Response / Chat Area (Expandable on reply)
         self.response_scroll = Gtk.ScrolledWindow()
         self.response_scroll.get_style_context().add_class("response-scroll")
@@ -430,6 +653,7 @@ class DesktopInputBox(Gtk.Window):
         self.response_scroll.set_propagate_natural_height(True)
         self.response_scroll.set_min_content_height(0)
         self.response_scroll.set_max_content_height(self.get_max_allowed_response_height())
+        self.response_scroll.set_no_show_all(True)
         self.response_scroll.set_visible(False)
         
         self.response_view = Gtk.TextView()
@@ -470,6 +694,7 @@ class DesktopInputBox(Gtk.Window):
         
         self.divider2 = Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL)
         self.divider2.get_style_context().add_class("divider")
+        self.divider2.set_no_show_all(True)
         self.divider2.set_visible(False)
         self.main_box.pack_start(self.divider2, False, False, 0)
         
@@ -957,6 +1182,11 @@ class DesktopInputBox(Gtk.Window):
         self.adjust_response_height()
 
     def on_send_clicked(self, widget):
+        # Cancel any pending idle unload timer
+        if self.idle_timer_id:
+            GLib.source_remove(self.idle_timer_id)
+            self.idle_timer_id = None
+
         if self.is_generating:
             # Stop button pressed
             self.stop_requested = True
@@ -996,7 +1226,7 @@ class DesktopInputBox(Gtk.Window):
         self.btn_send.get_style_context().add_class("stop-btn")
         self.set_status("● GENERATING...", "busy")
         
-        # Run streaming in background
+        # Run streaming in background with only the chosen model
         self.current_stream_thread = threading.Thread(
             target=self.run_generation_stream,
             args=(prompt, self.selected_model, self.selected_mode, self.selected_level),
@@ -1008,6 +1238,7 @@ class DesktopInputBox(Gtk.Window):
         self.lbl_status.set_text(text)
         self.lbl_status.get_style_context().remove_class("busy")
         self.lbl_status.get_style_context().remove_class("error")
+        self.lbl_status.get_style_context().remove_class("standby")
         if style_class:
             self.lbl_status.get_style_context().add_class(style_class)
 
@@ -1021,6 +1252,10 @@ class DesktopInputBox(Gtk.Window):
     def on_clear_all(self, widget):
         if self.is_generating:
             self.stop_requested = True
+        if self.history_view_active:
+            self.history_view_active = False
+            self.btn_history.get_style_context().remove_class("active-tool")
+            self.history_container.set_visible(False)
         self.user_prompt_text = ""
         self.raw_assistant_response = ""
         self.response_buffer.set_text("")
@@ -1033,6 +1268,185 @@ class DesktopInputBox(Gtk.Window):
         self.set_status("● ACTIVE", "")
         self.resize(self.BOX_WIDTH, 1)
         GLib.idle_add(self.reposition_above_conky)
+
+    # -------------------------------------------------------------------------
+    # Chat History Management (Tabs, List, Clear All, Delete ID)
+    # -------------------------------------------------------------------------
+    def toggle_history_view(self, widget=None):
+        self.history_view_active = not self.history_view_active
+        if self.history_view_active:
+            self.btn_history.get_style_context().add_class("active-tool")
+            self.response_scroll.set_visible(False)
+            self.divider2.set_visible(False)
+            self.history_container.set_visible(True)
+            self.refresh_history_ui()
+            
+            max_resp_h = self.get_max_allowed_response_height()
+            self.history_scroll.set_min_content_height(min(240, max_resp_h))
+            self.history_scroll.set_max_content_height(max_resp_h)
+            self.reposition_above_conky()
+        else:
+            self.btn_history.get_style_context().remove_class("active-tool")
+            self.history_container.set_visible(False)
+            if self.raw_assistant_response or self.user_prompt_text:
+                self.response_scroll.set_visible(True)
+                self.divider2.set_visible(True)
+                self.btn_copy.set_visible(True)
+                self.adjust_response_height()
+            else:
+                self.response_scroll.set_visible(False)
+                self.divider2.set_visible(False)
+                self.btn_copy.set_visible(False)
+                self.resize(self.BOX_WIDTH, 1)
+                GLib.idle_add(self.reposition_above_conky)
+
+    def refresh_history_ui(self):
+        for child in self.history_list_box.get_children():
+            self.history_list_box.remove(child)
+            
+        history = load_chat_history()
+        count = len(history)
+        self.lbl_history_count.set_markup(f"<b> CHAT HISTORY ({count})</b>")
+        
+        if not history:
+            row = Gtk.ListBoxRow()
+            row.get_style_context().add_class("history-row")
+            row.set_selectable(False)
+            empty_lbl = Gtk.Label(label="󰋚  No chat history yet. Ask something!")
+            empty_lbl.get_style_context().add_class("history-empty-lbl")
+            empty_lbl.set_halign(Gtk.Align.CENTER)
+            row.add(empty_lbl)
+            self.history_list_box.add(row)
+            self.history_list_box.show_all()
+            return
+            
+        for item in history:
+            row = Gtk.ListBoxRow()
+            row.get_style_context().add_class("history-row")
+            row.set_selectable(False)
+            
+            card = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+            card.get_style_context().add_class("history-card")
+            
+            content_evbox = Gtk.EventBox()
+            content_evbox.set_visible_window(False)
+            
+            content_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+            
+            top_line = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+            
+            id_short = item.get("id", "")[-6:] if item.get("id") else "NEW"
+            lbl_id = Gtk.Label(label=f"#{id_short}")
+            lbl_id.get_style_context().add_class("history-card-id")
+            lbl_id.set_halign(Gtk.Align.START)
+            top_line.pack_start(lbl_id, False, False, 0)
+            
+            time_display = f"{item.get('date_str', '')} {item.get('time_str', '')}".strip() or item.get("timestamp", "")
+            model_short = item.get('model', '').split(':')[0]
+            lbl_meta = Gtk.Label(label=f"󰸗 {time_display} • {model_short} • {item.get('mode', '')}")
+            lbl_meta.get_style_context().add_class("history-card-meta")
+            lbl_meta.set_halign(Gtk.Align.START)
+            top_line.pack_start(lbl_meta, False, False, 0)
+            
+            content_box.pack_start(top_line, False, False, 0)
+            
+            prompt_text = item.get("prompt", "").replace("\n", " ").strip()
+            if len(prompt_text) > 65:
+                prompt_text = prompt_text[:62] + "..."
+            lbl_prompt = Gtk.Label(label=prompt_text)
+            lbl_prompt.get_style_context().add_class("history-card-prompt")
+            lbl_prompt.set_halign(Gtk.Align.START)
+            lbl_prompt.set_ellipsize(Pango.EllipsizeMode.END)
+            content_box.pack_start(lbl_prompt, False, False, 0)
+            
+            content_evbox.add(content_box)
+            content_evbox.connect("button-press-event", self._make_item_click_handler(item))
+            card.pack_start(content_evbox, True, True, 0)
+            
+            btn_del = Gtk.Button(label="󰆴")
+            btn_del.get_style_context().add_class("history-del-btn")
+            btn_del.set_tooltip_text(f"Delete chat #{id_short}")
+            btn_del.connect("clicked", self._make_delete_handler(item.get("id")))
+            card.pack_end(btn_del, False, False, 0)
+            
+            row.add(card)
+            self.history_list_box.add(row)
+            
+        self.history_list_box.show_all()
+
+    def _make_item_click_handler(self, item):
+        def handler(widget, event):
+            self.on_history_item_clicked(item)
+            return True
+        return handler
+
+    def _make_delete_handler(self, chat_id):
+        def handler(widget):
+            self.on_delete_single_history(chat_id)
+        return handler
+
+    def on_history_item_clicked(self, item):
+        self.user_prompt_text = item.get("prompt", "")
+        self.raw_assistant_response = item.get("response", "")
+        if item.get("model"):
+            self.selected_model = item.get("model")
+            self.update_model_button_label()
+        if item.get("mode") in MODES:
+            self.selected_mode = item.get("mode")
+            icon = "󰒓" if self.selected_mode == "Task" else ("󰈙" if self.selected_mode == "Knowledge" else "󰅩")
+            self.btn_mode.set_label(f"{icon} {self.selected_mode}")
+        if item.get("level") in LEVELS:
+            self.selected_level = item.get("level")
+            self.btn_level.set_label(f"󰮔 {self.selected_level}")
+            
+        # Switch to chat view
+        self.history_view_active = False
+        self.btn_history.get_style_context().remove_class("active-tool")
+        self.history_container.set_visible(False)
+        self.response_scroll.set_visible(True)
+        self.divider2.set_visible(True)
+        self.btn_copy.set_visible(True)
+        
+        meta = f" Restored #{item.get('id', '')[-6:]} • {item.get('timestamp', '')}"
+        self.render_full_conversation(meta_text=meta)
+
+    def on_delete_single_history(self, chat_id):
+        if not chat_id:
+            return
+        history = load_chat_history()
+        history = [h for h in history if h.get("id") != chat_id]
+        save_chat_history(history)
+        self.set_status("✓ DELETED", "")
+        GLib.timeout_add(1200, lambda: self.set_status("● ACTIVE", ""))
+        self.refresh_history_ui()
+
+    def on_clear_all_history(self, widget):
+        save_chat_history([])
+        self.set_status("✓ ALL CLEARED", "")
+        GLib.timeout_add(1200, lambda: self.set_status("● ACTIVE", ""))
+        self.refresh_history_ui()
+
+    def save_current_chat_to_history(self):
+        try:
+            chat_id = datetime.now().strftime("%Y%m%d_%H%M%S")
+            entry = {
+                "id": chat_id,
+                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "time_str": datetime.now().strftime("%H:%M"),
+                "date_str": datetime.now().strftime("%m/%d"),
+                "prompt": self.user_prompt_text,
+                "response": self.raw_assistant_response,
+                "model": self.selected_model,
+                "mode": self.selected_mode,
+                "level": self.selected_level
+            }
+            history = load_chat_history()
+            if not (history and history[0].get("prompt") == entry["prompt"] and history[0].get("response") == entry["response"]):
+                history.insert(0, entry)
+                history = history[:60]
+                save_chat_history(history)
+        except Exception:
+            pass
 
     # -------------------------------------------------------------------------
     # Ollama Streaming Generation Engine
@@ -1077,6 +1491,7 @@ class DesktopInputBox(Gtk.Window):
                 {"role": "user", "content": prompt}
             ],
             "stream": True,
+            "keep_alive": "10s",
             "options": {
                 "temperature": 0.2 if mode in ("Code", "Task") else 0.5,
                 "num_ctx": 4096
@@ -1129,9 +1544,38 @@ class DesktopInputBox(Gtk.Window):
             self.set_status("● ACTIVE", "")
             meta = f"✓ {self.selected_model.split(':')[0]} • {elapsed:.1f}s"
             self.render_full_conversation(meta_text=meta)
+            # Auto-save completed chat to history
+            if self.user_prompt_text and self.raw_assistant_response:
+                self.save_current_chat_to_history()
+            
+            # 10s countdown: if no new input is sent, auto-unload model from background VRAM/RAM
+            if self.idle_timer_id:
+                GLib.source_remove(self.idle_timer_id)
+            self.idle_timer_id = GLib.timeout_add(10000, self.on_idle_timeout)
         else:
             self.set_status("● ERROR", "error")
             self.render_full_conversation()
+
+    def on_idle_timeout(self):
+        self.idle_timer_id = None
+        self.set_status("● STANDBY", "standby")
+        # Explicitly unload model from memory in Ollama
+        threading.Thread(target=self.unload_ollama_model, args=(self.selected_model,), daemon=True).start()
+        return False
+
+    def unload_ollama_model(self, model_name):
+        try:
+            req_data = json.dumps({"model": model_name, "keep_alive": 0}).encode("utf-8")
+            req = urllib.request.Request(
+                f"{self.ollama_url}/api/generate",
+                data=req_data,
+                headers={"Content-Type": "application/json", "User-Agent": "DesktopAI"},
+                method="POST"
+            )
+            with urllib.request.urlopen(req, timeout=5) as resp:
+                pass
+        except Exception:
+            pass
 
 
 def main():

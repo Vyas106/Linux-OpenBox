@@ -11,7 +11,6 @@ pkill -f "$SCRIPT_DIR/desktop_input_box.py" 2>/dev/null || true
 sleep 0.3
 
 # Launch in background with log capture
-nohup python3 "$SCRIPT_DIR/desktop_input_box.py" > /tmp/desktop_input_box.log 2>&1 &
-disown
+setsid python3 "$SCRIPT_DIR/desktop_input_box.py" > /tmp/desktop_input_box.log 2>&1 &
 
 echo "Desktop Input Box widget launched successfully on top of bottom-left greeting box."

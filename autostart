@@ -49,3 +49,6 @@ python3 /home/vishal/Useless/copyBord/copybord_daemon.py &
 
 # Start Desktop Input Box (positioned directly above bottom-left Conky Greeting box)
 "/home/vishal/Useless/launch_input_box.sh" &
+
+# Start JioSaavn Desktop Music Player (positioned between Left Input Box and Right Sidebar)
+"/home/vishal/Useless/launch_music_player.sh" &

@@ -877,9 +877,26 @@
     <maximized>true</maximized>
     # 'Horizontal', 'Vertical' or boolean (yes/no)
   </application>
-
-  # end of the example
 -->
+
+  <application class="DesktopInputBox">
+    <decor>no</decor>
+    <focus>no</focus>
+    <layer>below</layer>
+    <desktop>all</desktop>
+    <skip_taskbar>yes</skip_taskbar>
+    <skip_pager>yes</skip_pager>
+  </application>
+
+  <application class="DesktopMusicPlayer">
+    <decor>no</decor>
+    <focus>no</focus>
+    <layer>below</layer>
+    <desktop>all</desktop>
+    <skip_taskbar>yes</skip_taskbar>
+    <skip_pager>yes</skip_pager>
+  </application>
+
 </applications>
 
 </openbox_config>
